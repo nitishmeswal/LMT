@@ -22,8 +22,8 @@ interface ChakraNodeProps {
 }
 
 function ChakraNode({ position, color, index, intensity }: ChakraNodeProps) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const ringRef = useRef<THREE.Mesh>(null);
+  const meshRef = useRef<THREE.Mesh | null>(null);
+  const ringRef = useRef<THREE.Mesh | null>(null);
 
   useFrame((state) => {
     if (meshRef.current && ringRef.current) {
@@ -55,7 +55,7 @@ function ChakraNode({ position, color, index, intensity }: ChakraNodeProps) {
 }
 
 function KundaliniSpine({ intensity }: { intensity: number }) {
-  const curveRef = useRef<THREE.Line>(null);
+  const curveRef = useRef<THREE.Line | null>(null);
 
   const curve = useMemo(() => {
     const points = [];
@@ -68,6 +68,21 @@ function KundaliniSpine({ intensity }: { intensity: number }) {
     }
     return new THREE.CatmullRomCurve3(points);
   }, []);
+
+  const initialPoints = useMemo(() => curve.getPoints(50), [curve]);
+
+  const line = useMemo(() => {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute(
+      'position',
+      new THREE.BufferAttribute(
+        new Float32Array(initialPoints.flatMap((p) => [p.x, p.y, p.z])),
+        3
+      )
+    );
+    const material = new THREE.LineBasicMaterial({ color: '#f59e0b' });
+    return new THREE.Line(geometry, material);
+  }, [initialPoints]);
 
   useFrame((state) => {
     if (curveRef.current) {
@@ -86,20 +101,8 @@ function KundaliniSpine({ intensity }: { intensity: number }) {
     }
   });
 
-  const points = curve.getPoints(50);
-
   return (
-    <line ref={curveRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={points.length}
-          array={new Float32Array(points.flatMap(p => [p.x, p.y, p.z]))}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <lineBasicMaterial color="#f59e0b" linewidth={2} />
-    </line>
+    <primitive object={line} ref={curveRef} />
   );
 }
 
