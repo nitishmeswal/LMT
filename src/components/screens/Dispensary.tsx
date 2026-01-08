@@ -37,12 +37,10 @@ export default function Dispensary() {
   const handleCountdownComplete = async () => {
     if (!countdownDose || !user) return;
     
-    // Claim trial in database (atomic decrement)
     if (!isPremium) {
       await claimGlobalTrial(countdownDose.id, user.id);
     }
     
-    // Start the trip
     startTrip(countdownDose);
     setCountdownDose(null);
   };
@@ -70,6 +68,7 @@ export default function Dispensary() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-neuro-purple/50 transition-colors"
+              suppressHydrationWarning
             />
           </div>
         </div>

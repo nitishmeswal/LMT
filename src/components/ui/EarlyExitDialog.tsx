@@ -45,6 +45,9 @@ export default function EarlyExitDialog({
   const handleSubmit = async () => {
     setLoading(true);
     
+    // Note: Trial is already claimed in Dispensary.handleCountdownComplete when trip starts
+    // No need to claim again on early exit to avoid double-deduction
+    
     // Submit feedback to database
     if (selectedReason) {
       await submitExitFeedback(
